@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"data-insights/kit/metrics"
+	"data-insights/kit/model"
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
@@ -14,6 +16,8 @@ import (
 	"os"
 	"path/filepath"
 )
+
+const thresholdDataPointNumber int = 100
 
 func main() {
 
@@ -42,12 +46,160 @@ func main() {
 			log.Printf("Error processing file %s: %v\n", fileSource, err)
 			continue
 		}
-		insights, err := getInsightsFromLLM(apiKey, data)
+		overallMetrics := metrics.CalculateOverallMetrics(data)
+		//fmt.Println(overallMetrics)
+		// Convert the struct to JSON
+		overallMetricsJSON, err := json.MarshalIndent(overallMetrics, "", "  ")
 		if err != nil {
-			log.Printf("Error getting insights from LLM: %v\n", err)
-			continue
+			fmt.Println("Error marshalling to JSON:", err)
+			return
 		}
-		fmt.Printf("Insights for file %s: %s\n", fileSource, insights)
+		fmt.Println(string(overallMetricsJSON))
+
+		averageEngagementRatesByCountry := metrics.AggregateMetricsByBreakdown(data, metrics.COUNTRY, thresholdDataPointNumber)
+		//fmt.Println(getTopElements(averageEngagementRatesByCountry, 5))
+		//fmt.Println(getBottomElements(averageEngagementRatesByCountry, 5))
+		top5AverageEngagementRatesByCountryJSON, err := json.MarshalIndent(metrics.GetTopElements(averageEngagementRatesByCountry, 5), "", "  ")
+		if err != nil {
+			fmt.Println("Error marshalling to JSON:", err)
+			return
+		}
+		fmt.Println(string(top5AverageEngagementRatesByCountryJSON))
+		bottom5AverageEngagementRatesByCountryJSON, err := json.MarshalIndent(metrics.GetBottomElements(averageEngagementRatesByCountry, 5), "", "  ")
+		if err != nil {
+			fmt.Println("Error marshalling to JSON:", err)
+			return
+		}
+		fmt.Println(string(bottom5AverageEngagementRatesByCountryJSON))
+
+		averageDataForDevices := metrics.AggregateMetricsByBreakdown(data, metrics.DEVICE, thresholdDataPointNumber)
+		//fmt.Println(getTopElements(averageDataForDevices, 3))
+		//fmt.Println(getBottomElements(averageDataForDevices, 3))
+		top5AverageDataForDevicesJSON, err := json.MarshalIndent(metrics.GetTopElements(averageDataForDevices, 3), "", "  ")
+		if err != nil {
+			fmt.Println("Error marshalling to JSON:", err)
+			return
+		}
+		fmt.Println(string(top5AverageDataForDevicesJSON))
+		bottom5AverageDataForDevicesJSON, err := json.MarshalIndent(metrics.GetBottomElements(averageDataForDevices, 3), "", "  ")
+		if err != nil {
+			fmt.Println("Error marshalling to JSON:", err)
+			return
+		}
+		fmt.Println(string(bottom5AverageDataForDevicesJSON))
+
+		averageDataForPages := metrics.AggregateMetricsByBreakdown(data, metrics.PAGE, thresholdDataPointNumber)
+		//fmt.Println(getTopElements(averageDataForPages, 5))
+		//fmt.Println(getBottomElements(averageDataForPages, 5))
+		top5AverageDataForPagesJSON, err := json.MarshalIndent(metrics.GetTopElements(averageDataForPages, 5), "", "  ")
+		if err != nil {
+			fmt.Println("Error marshalling to JSON:", err)
+			return
+		}
+		fmt.Println(string(top5AverageDataForPagesJSON))
+		bottom5AverageDataForPagesJSON, err := json.MarshalIndent(metrics.GetBottomElements(averageDataForPages, 5), "", "  ")
+		if err != nil {
+			fmt.Println("Error marshalling to JSON:", err)
+			return
+		}
+		fmt.Println(string(bottom5AverageDataForPagesJSON))
+
+		averageDataForSessions := metrics.AggregateMetricsByBreakdown(data, metrics.MEDIUM, thresholdDataPointNumber)
+		//fmt.Println(getTopElements(averageDataForSessions, 2))
+		//fmt.Println(getBottomElements(averageDataForSessions, 2))
+		top5AverageDataForSessionsJSON, err := json.MarshalIndent(metrics.GetTopElements(averageDataForSessions, 2), "", "  ")
+		if err != nil {
+			fmt.Println("Error marshalling to JSON:", err)
+			return
+		}
+		fmt.Println(string(top5AverageDataForSessionsJSON))
+		bottom5AverageDataForSessionsJSON, err := json.MarshalIndent(metrics.GetBottomElements(averageDataForSessions, 2), "", "  ")
+		if err != nil {
+			fmt.Println("Error marshalling to JSON:", err)
+			return
+		}
+		fmt.Println(string(bottom5AverageDataForSessionsJSON))
+
+		//overallMetrics := calculateOverallMetrics(data)
+		////fmt.Println(overallMetrics)
+		//// Convert the struct to JSON
+		//overallMetricsJSON, err := json.MarshalIndent(overallMetrics, "", "  ")
+		//if err != nil {
+		//	fmt.Println("Error marshalling to JSON:", err)
+		//	return
+		//}
+		//fmt.Println(string(overallMetricsJSON))
+		//
+		//averageEngagementRatesByCountry := aggregateEngagementRatesByCountryWithThreshold(data, thresholdDataPointNumber)
+		////fmt.Println(getTopElements(averageEngagementRatesByCountry, 5))
+		////fmt.Println(getBottomElements(averageEngagementRatesByCountry, 5))
+		//top5AverageEngagementRatesByCountryJSON, err := json.MarshalIndent(getTopElements(averageEngagementRatesByCountry, 5), "", "  ")
+		//if err != nil {
+		//	fmt.Println("Error marshalling to JSON:", err)
+		//	return
+		//}
+		//fmt.Println(string(top5AverageEngagementRatesByCountryJSON))
+		//bottom5AverageEngagementRatesByCountryJSON, err := json.MarshalIndent(getBottomElements(averageEngagementRatesByCountry, 5), "", "  ")
+		//if err != nil {
+		//	fmt.Println("Error marshalling to JSON:", err)
+		//	return
+		//}
+		//fmt.Println(string(bottom5AverageEngagementRatesByCountryJSON))
+		//
+		//averageDataForDevices := aggregateDeviceCategoryMetricsWithThreshold(data, thresholdDataPointNumber)
+		////fmt.Println(getTopElements(averageDataForDevices, 3))
+		////fmt.Println(getBottomElements(averageDataForDevices, 3))
+		//top5AverageDataForDevicesJSON, err := json.MarshalIndent(getTopElements(averageDataForDevices, 3), "", "  ")
+		//if err != nil {
+		//	fmt.Println("Error marshalling to JSON:", err)
+		//	return
+		//}
+		//fmt.Println(string(top5AverageDataForDevicesJSON))
+		//bottom5AverageDataForDevicesJSON, err := json.MarshalIndent(getBottomElements(averageDataForDevices, 3), "", "  ")
+		//if err != nil {
+		//	fmt.Println("Error marshalling to JSON:", err)
+		//	return
+		//}
+		//fmt.Println(string(bottom5AverageDataForDevicesJSON))
+		//
+		//averageDataForPages := aggregatePageMetricsWithThreshold(data, thresholdDataPointNumber)
+		////fmt.Println(getTopElements(averageDataForPages, 5))
+		////fmt.Println(getBottomElements(averageDataForPages, 5))
+		//top5AverageDataForPagesJSON, err := json.MarshalIndent(getTopElements(averageDataForPages, 5), "", "  ")
+		//if err != nil {
+		//	fmt.Println("Error marshalling to JSON:", err)
+		//	return
+		//}
+		//fmt.Println(string(top5AverageDataForPagesJSON))
+		//bottom5AverageDataForPagesJSON, err := json.MarshalIndent(getBottomElements(averageDataForPages, 5), "", "  ")
+		//if err != nil {
+		//	fmt.Println("Error marshalling to JSON:", err)
+		//	return
+		//}
+		//fmt.Println(string(bottom5AverageDataForPagesJSON))
+		//
+		//averageDataForSessions := aggregateSessionMediumMetricsWithThreshold(data, thresholdDataPointNumber)
+		////fmt.Println(getTopElements(averageDataForSessions, 2))
+		////fmt.Println(getBottomElements(averageDataForSessions, 2))
+		//top5AverageDataForSessionsJSON, err := json.MarshalIndent(getTopElements(averageDataForSessions, 2), "", "  ")
+		//if err != nil {
+		//	fmt.Println("Error marshalling to JSON:", err)
+		//	return
+		//}
+		//fmt.Println(string(top5AverageDataForSessionsJSON))
+		//bottom5AverageDataForSessionsJSON, err := json.MarshalIndent(getBottomElements(averageDataForSessions, 2), "", "  ")
+		//if err != nil {
+		//	fmt.Println("Error marshalling to JSON:", err)
+		//	return
+		//}
+		//fmt.Println(string(bottom5AverageDataForSessionsJSON))
+
+		//insights, err := getInsightsFromLLM(apiKey, data)
+		//if err != nil {
+		//	log.Printf("Error getting insights from LLM: %v\n", err)
+		//	continue
+		//}
+		//fmt.Printf("Insights for file %s: %s\n", fileSource, insights)
 	}
 }
 
@@ -63,7 +215,7 @@ func FilePathWalkDir(root string) ([]string, error) {
 }
 
 // processJSONFile reads and parses the JSON file
-func processJSONFile(filePath string) ([]Insight, error) {
+func processJSONFile(filePath string) ([]model.Insight, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %v", err)
@@ -77,7 +229,7 @@ func processJSONFile(filePath string) ([]Insight, error) {
 
 	//log.Printf("Content of file %s: %s\n", filePath, string(content))
 
-	var data []Insight
+	var data []model.Insight
 	if err := json.Unmarshal(content, &data); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JSON: %v", err)
 	}
@@ -85,21 +237,7 @@ func processJSONFile(filePath string) ([]Insight, error) {
 	return data, nil
 }
 
-type Insight struct {
-	Country                string `json:"Country"`
-	DeviceCategory         string `json:"DeviceCategory"`
-	EngagementRate         string `json:"EngagementRate"`
-	LandingPage            string `json:"LandingPage"`
-	NewUsers               int    `json:"NewUsers"`
-	ScreenPageViews        int    `json:"ScreenPageViews"`
-	SessionMedium          string `json:"SessionMedium"`
-	Sessions               int    `json:"Sessions"`
-	TotalUsers             int    `json:"TotalUsers"`
-	UserEngagementDuration int    `json:"UserEngagementDuration"`
-	Date                   string `json:"date"`
-}
-
-func getInsightsFromLLM(apiKey string, data []Insight) (string, error) {
+func getInsightsFromLLM(apiKey string, data []model.Insight) (string, error) {
 	prompt := createPrompt(data)
 	requestBody, err := json.Marshal(map[string]interface{}{
 		"model": "gpt-4o-mini",
@@ -150,7 +288,7 @@ type RequestMessage struct {
 	Content string `json:"content"`
 }
 
-func createPrompt(data []Insight) string {
+func createPrompt(data []model.Insight) string {
 	prompt := "Analyze the following data and provide insights:\n\n"
 	for i, d := range data {
 		prompt += fmt.Sprintf("Country: %s, DeviceCategory: %s, EngagementRate: %s, LandingPage: %s, NewUsers: %d, ScreenPageViews: %d, SessionMedium: %s, Sessions: %d, TotalUsers: %d, UserEngagementDuration: %d, Date: %s\n",
@@ -166,6 +304,10 @@ func createPrompt(data []Insight) string {
 	//	}
 	//}
 	return prompt
+}
+
+func getKeyMetrics(data []model.Insight) {
+
 }
 
 type OpenAIResponse struct {
