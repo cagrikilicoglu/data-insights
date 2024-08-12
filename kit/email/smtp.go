@@ -22,6 +22,8 @@ func NewSMTPEmailService(host, port, email, passwd string) *SMTPEmailService {
 	}
 }
 
+// SendEmail sends an email to the specified recipient with the provided subject and body.
+// It connects to the SMTP server, secures the connection with TLS, authenticates, and sends the email.
 func (s *SMTPEmailService) SendEmail(to string, subject string, body string) error {
 	// Set up authentication information.
 	auth := smtp.PlainAuth("", s.SenderEmail, s.SenderPasswd, s.SMTPHost)
@@ -35,24 +37,24 @@ func (s *SMTPEmailService) SendEmail(to string, subject string, body string) err
 
 	// Upgrade the connection to TLS.
 	tlsConfig := &tls.Config{
-		InsecureSkipVerify: true, // Not recommended for production
+		InsecureSkipVerify: true, // TODO Change in production
 		ServerName:         s.SMTPHost,
 	}
 
-	if err := client.StartTLS(tlsConfig); err != nil {
+	if err = client.StartTLS(tlsConfig); err != nil {
 		return fmt.Errorf("failed to start TLS: %v", err)
 	}
 
 	// Authenticate.
-	if err := client.Auth(auth); err != nil {
+	if err = client.Auth(auth); err != nil {
 		return fmt.Errorf("failed to authenticate to SMTP server: %v", err)
 	}
 
 	// Set the sender and recipient.
-	if err := client.Mail(s.SenderEmail); err != nil {
+	if err = client.Mail(s.SenderEmail); err != nil {
 		return fmt.Errorf("failed to set sender: %v", err)
 	}
-	if err := client.Rcpt(to); err != nil {
+	if err = client.Rcpt(to); err != nil {
 		return fmt.Errorf("failed to set recipient: %v", err)
 	}
 
@@ -67,12 +69,12 @@ func (s *SMTPEmailService) SendEmail(to string, subject string, body string) err
 		s.SenderEmail, to, subject, body)
 
 	// Write the email content.
-	if _, err := w.Write([]byte(msg)); err != nil {
+	if _, err = w.Write([]byte(msg)); err != nil {
 		return fmt.Errorf("failed to write message: %v", err)
 	}
 
 	// Close the writer to finish the email.
-	if err := w.Close(); err != nil {
+	if err = w.Close(); err != nil {
 		return fmt.Errorf("failed to close writer: %v", err)
 	}
 

@@ -1,39 +1,42 @@
 package metrics
 
-import (
-	"data-insights/kit/model"
-)
+import "data-insights/kit/common"
 
-func AggregateMetricsByBreakdown(data []model.Insight, breakdown model.Breakdown, threshold int) model.AggregatedMetricsList {
-	metricsMap := make(map[string][]model.Insight)
+const singlePageView = 1
 
-	// Aggregate data based on the breakdown (Country, DeviceCategory, LandingPage, SessionMedium)
+// AggregateMetricsByBreakdown aggregates metrics based on the given breakdown (e.g., Country, DeviceCategory, etc.).
+// It applies a threshold to include only those categories with sufficient data points and returns a list of aggregated metrics.
+func AggregateMetricsByBreakdown(data []common.Insight, breakdown common.Breakdown, threshold int) common.AggregatedMetricsList {
+	metricsMap := make(map[string][]common.Insight)
+
+	// Group data based on the breakdown (Country, DeviceCategory, LandingPage, SessionMedium)
 	for _, insight := range data {
 		var key string
 		switch breakdown {
-		case model.COUNTRY:
+		case common.COUNTRY:
 			key = insight.Country
-		case model.DEVICE:
+		case common.DEVICE:
 			key = insight.DeviceCategory
-		case model.PAGE:
+		case common.PAGE:
 			key = insight.LandingPage
-		case model.MEDIUM:
+		case common.MEDIUM:
 			key = insight.SessionMedium
 		}
 		metricsMap[key] = append(metricsMap[key], insight)
 	}
 
-	// Calculate metrics for each breakdown category that meets the threshold
-	var aggregatedMetrics []model.AggregatedMetrics
+	// Calculate aggregated metrics for each group that meets the threshold
+	var aggregatedMetrics []common.AggregatedMetrics
 	for name, insights := range metricsMap {
-		if len(insights) >= threshold && name != model.NOTSET {
+		if len(insights) >= threshold && name != common.NOTSET {
 			var totalEngagementRate, totalSessionDuration, totalBounceRate float64
 			var totalSessions, totalPageViews, totalNewUsers, totalUsers int
 
+			// Sum up the metrics for the current group
 			for _, insight := range insights {
 				totalEngagementRate += parseStringToFloat(insight.EngagementRate)
 				totalSessionDuration += float64(insight.UserEngagementDuration)
-				if insight.Sessions > 0 && insight.ScreenPageViews == 1 {
+				if insight.Sessions > 0 && insight.ScreenPageViews == singlePageView {
 					totalBounceRate += 1
 				}
 				totalPageViews += insight.ScreenPageViews
@@ -42,12 +45,18 @@ func AggregateMetricsByBreakdown(data []model.Insight, breakdown model.Breakdown
 				totalUsers += insight.TotalUsers
 			}
 
+			// Calculate averages and derived metrics
 			averageEngagementRate := totalEngagementRate / float64(len(insights))
 			averageSessionDuration := totalSessionDuration / float64(totalSessions)
 			bounceRate := (totalBounceRate / float64(totalSessions)) * 100
-			averageEngagementDuration := totalSessionDuration / float64(totalPageViews)
 
-			aggregatedMetrics = append(aggregatedMetrics, model.AggregatedMetrics{
+			var averageEngagementDuration float64
+			if totalPageViews > 0 {
+				averageEngagementDuration = totalSessionDuration / float64(totalPageViews)
+			}
+
+			// Append the aggregated metrics for the current group
+			aggregatedMetrics = append(aggregatedMetrics, common.AggregatedMetrics{
 				Name:                      name,
 				AverageEngagementRate:     averageEngagementRate,
 				TotalSessions:             totalSessions,

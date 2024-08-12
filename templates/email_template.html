@@ -22,24 +22,69 @@
 
 <h2>Overall Metrics</h2>
 <p>{{.OverallMetrics.AIInsight}}</p>
+<table>
+    <tr><th>Metric</th><th>Value</th></tr>
+    <tr><td>Overall Engagement Rate</td><td>{{.OverallMetrics.OverallEngagementRate}}</td></tr>
+    <tr><td>Average Session Duration</td><td>{{.OverallMetrics.AverageSessionDuration}}</td></tr>
+    <tr><td>Bounce Rate</td><td>{{.OverallMetrics.BounceRate}}</td></tr>
+    <tr><td>Pages Per Session</td><td>{{.OverallMetrics.PagesPerSession}}</td></tr>
+    <tr><td>New User Percentage</td><td>{{.OverallMetrics.NewUserPercentage}}</td></tr>
+    <tr><td>Session Per User</td><td>{{.OverallMetrics.SessionPerUser}}</td></tr>
+</table>
 
 <h2>Top 5 Countries with Highest Engagement Rate</h2>
 <p>{{.Top5CountriesWithHighestEngagementRate.AIInsight}}</p>
+<table>
+    <tr><th>Country</th><th>Engagement Rate</th></tr>
+    {{range .Top5CountriesWithHighestEngagementRate.AggregatedMetrics}}
+    <tr><td>{{.Name}}</td><td>{{.AverageEngagementRate}}</td></tr>
+    {{end}}
+</table>
 
 <h2>Top 5 Countries with Lowest Engagement Rate</h2>
 <p>{{.Top5CountriesWithLowestEngagementRate.AIInsight}}</p>
+<table>
+    <tr><th>Country</th><th>Engagement Rate</th></tr>
+    {{range .Top5CountriesWithLowestEngagementRate.AggregatedMetrics}}
+    <tr><td>{{.Name}}</td><td>{{.AverageEngagementRate}}</td></tr>
+    {{end}}
+</table>
 
 <h2>Bounce Rates by Devices</h2>
 <p>{{.BounceRatesByDevices.AIInsight}}</p>
+<table>
+    <tr><th>Device</th><th>Bounce Rate</th></tr>
+    {{range .BounceRatesByDevices.AggregatedMetrics}}
+    <tr><td>{{.Name}}</td><td>{{.BounceRate}}</td></tr>
+    {{end}}
+</table>
 
 <h2>Top 5 Pages with Highest Number of Sessions</h2>
 <p>{{.Top5PagesWithHighestNoOfSessions.AIInsight}}</p>
+<table>
+    <tr><th>Page</th><th>Sessions</th></tr>
+    {{range .Top5PagesWithHighestNoOfSessions.AggregatedMetrics}}
+    <tr><td>{{.Name}}</td><td>{{.TotalSessions}}</td></tr>
+    {{end}}
+</table>
 
 <h2>Top 5 Pages with Lowest Number of Sessions</h2>
 <p>{{.Top5PagesWithLowestNoOfSessions.AIInsight}}</p>
+<table>
+    <tr><th>Page</th><th>Sessions</th></tr>
+    {{range .Top5PagesWithLowestNoOfSessions.AggregatedMetrics}}
+    <tr><td>{{.Name}}</td><td>{{.TotalSessions}}</td></tr>
+    {{end}}
+</table>
 
 <h2>Average Session Durations by Devices</h2>
 <p>{{.AverageSessionDurationsByDevices.AIInsight}}</p>
+<table>
+    <tr><th>Device</th><th>Average Session Duration</th></tr>
+    {{range .AverageSessionDurationsByDevices.AggregatedMetrics}}
+    <tr><td>{{.Name}}</td><td>{{.AverageSessionDuration}}</td></tr>
+    {{end}}
+</table>
 
 <p>Best regards,<br>Your Analytics Team</p>
 </body>

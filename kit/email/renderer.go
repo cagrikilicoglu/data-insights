@@ -2,27 +2,25 @@ package email
 
 import (
 	"bytes"
-	"data-insights/kit/model"
+	"data-insights/kit/common"
 	"html/template"
 )
 
-// Define the interface
 type Renderer interface {
-	Render(emailData model.EmailData) (string, error)
+	Render(emailData common.EmailData) (string, error)
 }
 
-// Define the struct that implements the interface
 type EmailRenderer struct {
 	templatePath string
 }
 
-// Constructor function for EmailRenderer
 func NewRenderer(templatePath string) *EmailRenderer {
 	return &EmailRenderer{templatePath: templatePath}
 }
 
-// Implement the Render method for EmailRenderer
-func (r *EmailRenderer) Render(emailData model.EmailData) (string, error) {
+// Render parses the email template, executes the parsed template with the provided email data and
+// returns the resulting email body as a string.
+func (r *EmailRenderer) Render(emailData common.EmailData) (string, error) {
 	tmpl, err := template.ParseFiles(r.templatePath)
 	if err != nil {
 		return "", err

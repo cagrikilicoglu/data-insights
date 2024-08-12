@@ -1,33 +1,42 @@
 package metrics
 
-import (
-	"data-insights/kit/model"
+import "data-insights/kit/common"
+
+const (
+	thresholdDataPointNumber int = 100
+	topBottomCount int = 5
 )
 
-const thresholdDataPointNumber int = 100
-
-func GetImportantMetrics(data []model.Insight) model.UserMetrics {
+// CalculateKeyMetrics calculates and returns key metrics for the dataset,
+// including overall metrics and top/bottom breakdowns by country, device, page, and medium.
+func CalculateKeyMetrics(data []common.Insight) common.UserMetrics {
+	// Calculate overall metrics
 	overallMetrics := CalculateOverallMetrics(data)
 
-	metricsByCountry := AggregateMetricsByBreakdown(data, model.COUNTRY, thresholdDataPointNumber)
-	metricsByCountry.SortByField(model.AVGENGAGEMENTRATE, model.DESC)
+	// Aggregate and sort metrics by country
+	metricsByCountry := AggregateMetricsByBreakdown(data, common.COUNTRY, thresholdDataPointNumber)
+	metricsByCountry.SortByField(common.AVGENGAGEMENTRATE, common.DESC)
 
-	metricsByDevices := AggregateMetricsByBreakdown(data, model.DEVICE, thresholdDataPointNumber)
-	metricsByDevices.SortByField(model.BOUNCERATE, model.DESC)
+	// Aggregate and sort metrics by device category
+	metricsByDevices := AggregateMetricsByBreakdown(data, common.DEVICE, thresholdDataPointNumber)
+	metricsByDevices.SortByField(common.BOUNCERATE, common.DESC)
 
-	metricsByPages := AggregateMetricsByBreakdown(data, model.PAGE, thresholdDataPointNumber)
-	metricsByPages.SortByField(model.TOTALSESSIONS, model.DESC)
+	// Aggregate and sort metrics by page
+	metricsByPages := AggregateMetricsByBreakdown(data, common.PAGE, thresholdDataPointNumber)
+	metricsByPages.SortByField(common.TOTALSESSIONS, common.DESC)
 
-	metricsByMedium := AggregateMetricsByBreakdown(data, model.MEDIUM, thresholdDataPointNumber)
-	metricsByMedium.SortByField(model.AVGSESSIONDURATION, model.DESC)
+	// Aggregate and sort metrics by session medium
+	metricsByMedium := AggregateMetricsByBreakdown(data, common.MEDIUM, thresholdDataPointNumber)
+	metricsByMedium.SortByField(common.AVGSESSIONDURATION, common.DESC)
 
-	return model.UserMetrics{
+	// Return the aggregated user metrics with top and bottom elements for each breakdown
+	return common.UserMetrics{
 		OverallMetrics:                         overallMetrics,
-		Top5CountriesWithHighestEngagementRate: GetTopElements(metricsByCountry, 5),
-		Top5CountriesWithLowestEngagementRate:  GetBottomElements(metricsByCountry, 5),
+		Top5CountriesWithHighestEngagementRate: GetTopElements(metricsByCountry, topBottomCount),
+		Top5CountriesWithLowestEngagementRate:  GetBottomElements(metricsByCountry, topBottomCount),
 		BounceRatesByDevices:                   metricsByDevices,
-		Top5PagesWithHighestNoOfSessions:       GetTopElements(metricsByPages, 5),
-		Top5PagesWithLowestNoOfSessions:        GetBottomElements(metricsByPages, 5),
+		Top5PagesWithHighestNoOfSessions:       GetTopElements(metricsByPages, topBottomCount),
+		Top5PagesWithLowestNoOfSessions:        GetBottomElements(metricsByPages, topBottomCount),
 		AverageSessionDurationsByDevices:       metricsByMedium,
 	}
 }

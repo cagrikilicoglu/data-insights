@@ -2,10 +2,8 @@ package ai
 
 import (
 	"bytes"
-	"data-insights/kit/model"
-	"database/sql/driver"
+	"data-insights/kit/common"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,7 +11,7 @@ import (
 
 type Client interface {
 	makeRequestAndGetResponse(apiKey, prompt string) (OpenAIResponse, error)
-	GetInsightsFromLLM(apiKey string, data model.UserMetrics) (string, error)
+	GetInsightsFromLLM(apiKey string, data common.UserMetrics) (string, error)
 }
 
 type OpenAIClient struct {
@@ -21,16 +19,22 @@ type OpenAIClient struct {
 	Url        string
 	MaxTokens  int
 	SenderRole string
+	HttpClient *http.Client // Reusable HTTP client
 }
 
-func NewOpenAIClient(model AIModel, url string, maxTokens int, senderRole string) OpenAIClient {
+func NewOpenAIClient(model AIModel, url string, maxTokens int, senderRole string, httpClient *http.Client) OpenAIClient {
 	return OpenAIClient{
 		AIModel:    model,
 		Url:        url,
 		MaxTokens:  maxTokens,
 		SenderRole: senderRole,
+		HttpClient: httpClient,
 	}
 }
+
+// makeRequestAndGetResponse creates an HTTP POST request to the OpenAI API with the provided API key and prompt,
+// and returns the API response. It returns an OpenAIResponse object if successful, or an error if the request
+// fails or the response cannot be parsed.
 
 func (o OpenAIClient) makeRequestAndGetResponse(apiKey, prompt string) (OpenAIResponse, error) {
 	requestBody, err := json.Marshal(map[string]interface{}{
@@ -71,7 +75,10 @@ func (o OpenAIClient) makeRequestAndGetResponse(apiKey, prompt string) (OpenAIRe
 	return aiResponse, nil
 }
 
-func (o OpenAIClient) GetInsightsFromLLM(apiKey string, data model.UserMetrics) (string, error) {
+// GetInsightsFromLLM generates insights from the given UserMetrics data
+// by sending a request to the OpenAI API and returning the first response choice
+// as a string. It returns an error if the request fails or if the API returns no choices.
+func (o OpenAIClient) GetInsightsFromLLM(apiKey string, data common.UserMetrics) (string, error) {
 
 	aiResponse, err := o.makeRequestAndGetResponse(apiKey, createPrompt(data))
 	if err != nil {
@@ -83,59 +90,4 @@ func (o OpenAIClient) GetInsightsFromLLM(apiKey string, data model.UserMetrics) 
 	}
 
 	return aiResponse.Choices[0].Message.Content, nil
-}
-
-type RequestMessage struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
-}
-
-type OpenAIResponse struct {
-	ID      string   `json:"id"`
-	Object  string   `json:"object"`
-	Created int      `json:"created"`
-	Model   string   `json:"model"`
-	Choices []Choice `json:"choices"`
-	Usage   struct {
-		PromptTokens     int `json:"prompt_tokens"`
-		CompletionTokens int `json:"completion_tokens"`
-		TotalTokens      int `json:"total_tokens"`
-	} `json:"usage"`
-}
-
-type Choice struct {
-	Message      RequestMessage `json:"message"`
-	Index        int            `json:"index"`
-	Logprobs     interface{}    `json:"logprobs"`
-	FinishReason string         `json:"finish_reason"`
-}
-
-// todo delete??
-type Choices []Choice
-
-func (j Choices) Value() (driver.Value, error) {
-	if len(j) == 0 {
-		return nil, nil
-	}
-	return json.Marshal(j)
-}
-
-func (j *Choices) Scan(value interface{}) error {
-	bytes, ok := value.([]byte)
-	if !ok {
-		return errors.New(fmt.Sprint("Failed to unmarshal Choices value:", value))
-	}
-	return json.Unmarshal(bytes, j)
-}
-
-func (j Choice) Value() (driver.Value, error) {
-	return json.Marshal(j)
-}
-
-func (j *Choice) Scan(value interface{}) error {
-	bytes, ok := value.([]byte)
-	if !ok {
-		return errors.New(fmt.Sprint("Failed to unmarshal Choice value:", value))
-	}
-	return json.Unmarshal(bytes, j)
 }
