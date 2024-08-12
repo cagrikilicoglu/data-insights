@@ -5,26 +5,6 @@ import (
 	"fmt"
 )
 
-//type AggregatedMetricsWithInsight struct {
-//	model.AggregatedMetricsList `json:"aggregated_metrics"`
-//	AIInsight                   string `json:"ai_insight"`
-//}
-//
-//type OverallMetricsWithInsight struct {
-//	model.OverallMetrics `json:"overall_metrics"`
-//	AIInsight            string `json:"ai_insight"`
-//}
-//
-//type UserMetricsWithInsights struct {
-//	OverallMetrics                         OverallMetricsWithInsight    `json:"overall_metrics"`
-//	Top5CountriesWithHighestEngagementRate AggregatedMetricsWithInsight `json:"top_5_countries_with_highest_engagement_rate"`
-//	Top5CountriesWithLowestEngagementRate  AggregatedMetricsWithInsight `json:"top_5_countries_with_lowest_engagement_rate"`
-//	BounceRatesByDevices                   AggregatedMetricsWithInsight `json:"bounce_rates_by_devices"`
-//	Top5PagesWithHighestNoOfSessions       AggregatedMetricsWithInsight `json:"top_5_pages_with_highest_no_of_sessions"`
-//	Top5PagesWithLowestNoOfSessions        AggregatedMetricsWithInsight `json:"top_5_pages_with_lowest_no_of_sessions"`
-//	AverageSessionDurationsByDevices       AggregatedMetricsWithInsight `json:"average_session_durations_by_devices"`
-//}
-
 type OverallMetricsWithInsight struct {
 	OverallEngagementRate  string `json:"overall_engagement_rate"`
 	AverageSessionDuration string `json:"average_session_duration"`
