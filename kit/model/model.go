@@ -158,3 +158,14 @@ type EmailData struct {
 	RecipientName string
 	UserMetricsWithInsights
 }
+
+type EnvVariables struct {
+	FileDirectory string
+	ApiKey        string
+	EmailFrom     string
+	EmailPass     string
+	EmailTo       string
+	RecipientName string
+	SmtpHost      string
+	SmtpPort      string
+}

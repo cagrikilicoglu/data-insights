@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func CreatePrompt(metrics model.UserMetrics) string {
+func createPrompt(metrics model.UserMetrics) string {
 	prompt := "Analyze the following metrics and provide insights for each group of metrics as a whole. The insights should be included in the 'ai_insight' field for each metric group.\n\n"
 
 	// Add overall metrics
@@ -122,22 +122,3 @@ func CreatePrompt(metrics model.UserMetrics) string {
 
 	return prompt
 }
-
-//
-//func createPrompt(data []model.Insight) string {
-//	prompt := "Analyze the following data and provide insights:\n\n"
-//	for i, d := range data {
-//		prompt += fmt.Sprintf("Country: %s, DeviceCategory: %s, EngagementRate: %s, LandingPage: %s, NewUsers: %d, ScreenPageViews: %d, SessionMedium: %s, Sessions: %d, TotalUsers: %d, UserEngagementDuration: %d, Date: %s\n",
-//			d.Country, d.DeviceCategory, d.EngagementRate, d.LandingPage, d.NewUsers, d.ScreenPageViews, d.SessionMedium, d.Sessions, d.TotalUsers, d.UserEngagementDuration, d.Date)
-//		if i == 100 {
-//			break
-//		}
-//	}
-//	//fmt.Println(prompt)
-//	//for i:= 0 ; i<100 ; i++ {
-//	//		prompt += fmt.Sprintf("Country: %s, DeviceCategory: %s, EngagementRate: %s, LandingPage: %s, NewUsers: %d, ScreenPageViews: %d, SessionMedium: %s, Sessions: %d, TotalUsers: %d, UserEngagementDuration: %d, Date: %s\n",
-//	//			d.Country, d.DeviceCategory, d.EngagementRate, d.LandingPage, d.NewUsers, d.ScreenPageViews, d.SessionMedium, d.Sessions, d.TotalUsers, d.UserEngagementDuration, d.Date)
-//	//	}
-//	//}
-//	return prompt
-//}

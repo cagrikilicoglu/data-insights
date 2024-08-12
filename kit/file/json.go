@@ -9,7 +9,7 @@ import (
 )
 
 // ProcessJSONFile reads and parses the JSON file
-func ProcessJSONFile(filePath string) ([]model.Insight, error) {
+func GetRawDataFromFile(filePath string) ([]model.Insight, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %v", err)

@@ -11,24 +11,43 @@ import (
 	"net/http"
 )
 
-func GetInsightsFromLLM(apiKey string, data model.UserMetrics) (string, error) {
-	prompt := CreatePrompt(data)
+type Client interface {
+	makeRequestAndGetResponse(apiKey, prompt string) (OpenAIResponse, error)
+	GetInsightsFromLLM(apiKey string, data model.UserMetrics) (string, error)
+}
+
+type OpenAIClient struct {
+	AIModel    AIModel
+	Url        string
+	MaxTokens  int
+	SenderRole string
+}
+
+func NewOpenAIClient(model AIModel, url string, maxTokens int, senderRole string) OpenAIClient {
+	return OpenAIClient{
+		AIModel:    model,
+		Url:        url,
+		MaxTokens:  maxTokens,
+		SenderRole: senderRole,
+	}
+}
+
+func (o OpenAIClient) makeRequestAndGetResponse(apiKey, prompt string) (OpenAIResponse, error) {
 	requestBody, err := json.Marshal(map[string]interface{}{
-		"model": "gpt-4o-mini",
+		"model": o.AIModel,
 		"messages": []RequestMessage{{
-			Role:    "user",
+			Role:    o.SenderRole,
 			Content: prompt,
 		},
 		},
-		"max_tokens": 1500,
+		"max_tokens": o.MaxTokens,
 	})
 	if err != nil {
-		return "", fmt.Errorf("failed to marshal request body: %v", err)
+		return OpenAIResponse{}, fmt.Errorf("failed to marshal request body: %v", err)
 	}
-
-	req, err := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(requestBody))
+	req, err := http.NewRequest("POST", o.Url, bytes.NewBuffer(requestBody))
 	if err != nil {
-		return "", fmt.Errorf("failed to create request: %v", err)
+		return OpenAIResponse{}, fmt.Errorf("failed to create request: %v", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+apiKey)
@@ -36,18 +55,27 @@ func GetInsightsFromLLM(apiKey string, data model.UserMetrics) (string, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("failed to make request: %v", err)
+		return OpenAIResponse{}, fmt.Errorf("failed to make request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("failed to read response body: %v", err)
+		return OpenAIResponse{}, fmt.Errorf("failed to read response body: %v", err)
 	}
 
 	var aiResponse OpenAIResponse
 	if err := json.Unmarshal(body, &aiResponse); err != nil {
-		return "", fmt.Errorf("failed to unmarshal response: %v", err)
+		return OpenAIResponse{}, fmt.Errorf("failed to unmarshal response: %v", err)
+	}
+	return aiResponse, nil
+}
+
+func (o OpenAIClient) GetInsightsFromLLM(apiKey string, data model.UserMetrics) (string, error) {
+
+	aiResponse, err := o.makeRequestAndGetResponse(apiKey, createPrompt(data))
+	if err != nil {
+		return "", fmt.Errorf("failed to make request and get response: %v", err)
 	}
 
 	if len(aiResponse.Choices) == 0 {
@@ -82,6 +110,7 @@ type Choice struct {
 	FinishReason string         `json:"finish_reason"`
 }
 
+// todo delete??
 type Choices []Choice
 
 func (j Choices) Value() (driver.Value, error) {

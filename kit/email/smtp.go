@@ -22,65 +22,6 @@ func NewSMTPEmailService(host, port, email, passwd string) *SMTPEmailService {
 	}
 }
 
-//func (s *SMTPEmailService) SendEmail(to string, subject string, body string) error {
-//	auth := smtp.PlainAuth("", s.SenderEmail, s.SenderPasswd, s.SMTPHost)
-//	msg := fmt.Sprintf("From: %s\nTo: %s\nSubject: %s\nMIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n%s",
-//		s.SenderEmail, to, subject, body)
-//
-//	return smtp.SendMail(s.SMTPHost+":"+s.SMTPPort, auth, s.SenderEmail, []string{to}, []byte(msg))
-//}
-//
-//func (s *SMTPEmailService) SendEmail(to string, subject string, body string) error {
-//	// Setup the authentication
-//	auth := smtp.PlainAuth("", s.SenderEmail, s.SenderPasswd, s.SMTPHost)
-//
-//	// Setup the message
-//	msg := fmt.Sprintf("From: %s\nTo: %s\nSubject: %s\nMIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n%s",
-//		s.SenderEmail, to, subject, body)
-//
-//	// Connect to the SMTP server
-//	conn, err := tls.Dial("tcp", s.SMTPHost+":"+s.SMTPPort, &tls.Config{
-//		InsecureSkipVerify: true,
-//		ServerName:         s.SMTPHost,
-//	})
-//	if err != nil {
-//		return fmt.Errorf("failed to connect to SMTP server: %v", err)
-//	}
-//	defer conn.Close()
-//
-//	client, err := smtp.NewClient(conn, s.SMTPHost)
-//	if err != nil {
-//		return fmt.Errorf("failed to create SMTP client: %v", err)
-//	}
-//	defer client.Quit()
-//
-//	// Authenticate
-//	if err := client.Auth(auth); err != nil {
-//		return fmt.Errorf("failed to authenticate to SMTP server: %v", err)
-//	}
-//
-//	// Send the email
-//	if err := client.Mail(s.SenderEmail); err != nil {
-//		return fmt.Errorf("failed to set sender: %v", err)
-//	}
-//	if err := client.Rcpt(to); err != nil {
-//		return fmt.Errorf("failed to set recipient: %v", err)
-//	}
-//
-//	w, err := client.Data()
-//	if err != nil {
-//		return fmt.Errorf("failed to send data: %v", err)
-//	}
-//	if _, err := w.Write([]byte(msg)); err != nil {
-//		return fmt.Errorf("failed to write message: %v", err)
-//	}
-//	if err := w.Close(); err != nil {
-//		return fmt.Errorf("failed to close writer: %v", err)
-//	}
-//
-//	return nil
-//}
-
 func (s *SMTPEmailService) SendEmail(to string, subject string, body string) error {
 	// Set up authentication information.
 	auth := smtp.PlainAuth("", s.SenderEmail, s.SenderPasswd, s.SMTPHost)
