@@ -82,7 +82,7 @@ data-insights/
 ├── templates/
 │   └── email_template.html   # HTML template for the email report
 ├── files/                    # Data files to be analyzed
-├── go.mod                    # Example environment variables file
+├── go.mod                    # Project go.mod file
 ├── .env                      # Example environment variables file
 ├── LICENSE                   # License file
 └── README.md                 # Project documentation
