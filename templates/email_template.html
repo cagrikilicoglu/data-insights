@@ -1,0 +1,46 @@
+<!-- email_template.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Insights</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h1 { color: #333; }
+        p { color: #555; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        table, th, td { border: 1px solid #ddd; }
+        th, td { padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+<h1>Website Insights Report</h1>
+<p>Dear {{.RecipientName}},</p>
+<p>Here are the insights based on the latest data analysis:</p>
+
+<h2>Overall Metrics</h2>
+<p>{{.OverallMetrics.AIInsight}}</p>
+
+<h2>Top 5 Countries with Highest Engagement Rate</h2>
+<p>{{.Top5CountriesWithHighestEngagementRate.AIInsight}}</p>
+
+<h2>Top 5 Countries with Lowest Engagement Rate</h2>
+<p>{{.Top5CountriesWithLowestEngagementRate.AIInsight}}</p>
+
+<h2>Bounce Rates by Devices</h2>
+<p>{{.BounceRatesByDevices.AIInsight}}</p>
+
+<h2>Top 5 Pages with Highest Number of Sessions</h2>
+<p>{{.Top5PagesWithHighestNoOfSessions.AIInsight}}</p>
+
+<h2>Top 5 Pages with Lowest Number of Sessions</h2>
+<p>{{.Top5PagesWithLowestNoOfSessions.AIInsight}}</p>
+
+<h2>Average Session Durations by Devices</h2>
+<p>{{.AverageSessionDurationsByDevices.AIInsight}}</p>
+
+<p>Best regards,<br>Your Analytics Team</p>
+</body>
+</html>
