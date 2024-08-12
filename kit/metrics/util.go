@@ -6,9 +6,18 @@ func GetTopElements[T any](slice []T, numberOfElements int) []T {
 	return slice[:numberOfElements]
 }
 
-// todo terse çevir
 func GetBottomElements[T any](slice []T, numberOfElements int) []T {
-	return slice[len(slice)-numberOfElements:]
+	if numberOfElements > len(slice) {
+		numberOfElements = len(slice)
+	}
+	bottomElements := slice[len(slice)-numberOfElements:]
+
+	// Reverse the order of bottomElements
+	for i, j := 0, len(bottomElements)-1; i < j; i, j = i+1, j-1 {
+		bottomElements[i], bottomElements[j] = bottomElements[j], bottomElements[i]
+	}
+
+	return bottomElements
 }
 
 // Parse string to float64 with error handling

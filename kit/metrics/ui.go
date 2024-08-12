@@ -19,7 +19,7 @@ func GetImportantMetrics(data []model.Insight) model.UserMetrics {
 	metricsByPages.SortByField(model.TOTALSESSIONS, model.DESC)
 
 	metricsByMedium := AggregateMetricsByBreakdown(data, model.MEDIUM, thresholdDataPointNumber)
-	metricsByPages.SortByField(model.AVGSESSIONDURATION, model.DESC)
+	metricsByMedium.SortByField(model.AVGSESSIONDURATION, model.DESC)
 
 	return model.UserMetrics{
 		OverallMetrics:                         overallMetrics,

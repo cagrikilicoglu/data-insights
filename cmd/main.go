@@ -4,6 +4,7 @@ import (
 	"data-insights/kit/ai"
 	"data-insights/kit/file"
 	"data-insights/kit/metrics"
+	"encoding/json"
 	"fmt"
 	"github.com/joho/godotenv"
 	"log"
@@ -40,6 +41,8 @@ func main() {
 			continue
 		}
 		importantMetrics := metrics.GetImportantMetrics(data)
+		prompt := ai.CreatePrompt(importantMetrics)
+		fmt.Println(prompt)
 		//overallMetrics := metrics.CalculateOverallMetrics(data)
 		//overallMetricsJSON, err := json.MarshalIndent(overallMetrics, "", "  ")
 		//if err != nil {
@@ -104,11 +107,25 @@ func main() {
 		//}
 		//fmt.Println(string(bottom5AverageDataForSessionsJSON))
 
-		insights, err := ai.GetInsightsFromLLM(apiKey, data)
+		insights, err := ai.GetInsightsFromLLM(apiKey, importantMetrics)
 		if err != nil {
 			log.Printf("Error getting insights from LLM: %v\n", err)
 			continue
 		}
+
+		//insightsMarsh, err := json.Marshal(insights)
+		//if err != nil {
+		//	log.Printf("error when marshalling")
+		//	return
+		//}
+		var userMetricsWithInsights ai.UserMetricsWithInsights
+		err = json.Unmarshal([]byte(insights), &userMetricsWithInsights)
+		if err != nil {
+			log.Printf("error when unmarshalling")
+			return
+		}
+
 		fmt.Printf("Insights for file %s: %s\n", fileSource, insights)
+		fmt.Println("User Insights for file %s: %s\n", fileSource, userMetricsWithInsights)
 	}
 }
