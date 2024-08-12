@@ -2,16 +2,7 @@ package metrics
 
 import "data-insights/kit/model"
 
-type OverallMetrics struct {
-	OverallEngagementRate  float64
-	AverageSessionDuration float64
-	BounceRate             float64
-	PagesPerSession        float64
-	NewUserPercentage      float64
-	SessionPerUser         float64
-}
-
-func CalculateOverallMetrics(data []model.Insight) OverallMetrics {
+func CalculateOverallMetrics(data []model.Insight) model.OverallMetrics {
 	var totalEngagementRate, totalSessionDuration float64
 	var totalSessions, totalPageViews, totalNewUsers, totalUsers, singlePageSessions int
 
@@ -35,7 +26,7 @@ func CalculateOverallMetrics(data []model.Insight) OverallMetrics {
 	newUserPercentage := (float64(totalNewUsers) / float64(totalUsers)) * 100
 	sessionPerUser := float64(totalSessions) / float64(totalUsers)
 
-	return OverallMetrics{
+	return model.OverallMetrics{
 		OverallEngagementRate:  overallEngagementRate,
 		AverageSessionDuration: averageSessionDuration,
 		BounceRate:             bounceRate,
