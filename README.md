@@ -44,7 +44,7 @@ SMTP_PORT=your-smtp-port
 
 ## Configuration
 
-- Threshold Values: The threshold for the minimum number of data points can be adjusted in the metrics package (thresholdDataPointNumber constant).
+- Threshold Values: The threshold for the minimum number of data points can be adjusted in the metrics-ui package (thresholdDataPointNumber constant).
 - Email Templates: The HTML template for the email report is located in the templates directory.
 
 ## Project Structure
